@@ -1,16 +1,12 @@
 package zli.ld.absencetracker;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -19,7 +15,6 @@ import android.widget.ListView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
 
-import java.io.File;
 import java.util.ArrayList;
 
 import zli.ld.absencetracker.Model.Absence;
@@ -38,6 +33,9 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
     }
 
+    /**
+     * Saves the Absence Objects to the locale storage by JSON.
+     */
     private void saveData() {
         SharedPreferences.Editor prefsEditor = memory.edit();
         prefsEditor.putInt("absences", absences.size());
@@ -48,6 +46,9 @@ public class MainActivity extends AppCompatActivity {
         prefsEditor.commit();
     }
 
+    /**
+     * Loads the objects from the local storage. Deserializes them from JSON.
+     */
     private void loadData() {
         int size = memory.getInt("absences", 0);
         for (int i = 0; i < size; i++) {
@@ -74,28 +75,29 @@ public class MainActivity extends AppCompatActivity {
 
         activityResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
-                new ActivityResultCallback<ActivityResult>() {
-                    @Override
-                    public void onActivityResult(ActivityResult result) {
-                        System.out.println("Result: " + result.getResultCode());
-                        if (result.getResultCode() == AbsenceActivity.DELETE) {
-                            absences.remove(position);
-                        }
-                        if (result.getResultCode() == AbsenceActivity.CREATE) {
-                            Intent resultData = result.getData();
-                            Bundle data = resultData.getExtras();
-                            Absence absence = absences.get(position);
-                            absence.setDate(data.getString("date"));
-                            absence.setEmail(data.getString("email"));
-                            absence.setReason(data.getString("reason"));
-                            absence.setImage(data.getString("image"));
-                            absences.set(position, absence);
-                        }
-                        updateAbsencesView();
+                result -> {
+                    System.out.println("Result: " + result.getResultCode());
+                    if (result.getResultCode() == AbsenceActivity.DELETE) {
+                        absences.remove(position);
                     }
+                    if (result.getResultCode() == AbsenceActivity.CREATE) {
+                        Intent resultData = result.getData();
+                        Bundle data = resultData.getExtras();
+                        Absence absence = absences.get(position);
+                        absence.setDate(data.getString("date"));
+                        absence.setEmail(data.getString("email"));
+                        absence.setReason(data.getString("reason"));
+                        absence.setImage(data.getString("image"));
+                        absences.set(position, absence);
+                    }
+                    updateAbsencesView();
                 });
     }
 
+    /**
+     * Opens a AbsenceActivity by Intent with all the important extras.
+     * @param position
+     */
     void openAbsence(int position) {
         Absence absence = absences.get(position);
         Intent intent = new Intent(MainActivity.this, AbsenceActivity.class);
@@ -111,6 +113,9 @@ public class MainActivity extends AppCompatActivity {
         activityResultLauncher.launch(intent);
     }
 
+    /**
+     * Updated den Inhalt der View mit den Absenzen.
+     */
     private void updateAbsencesView() {
         ListView view = findViewById(R.id.list);
         ArrayAdapter<String> arr = new ArrayAdapter<>(this, R.layout.support_simple_spinner_dropdown_item, generateAbsencesView());
@@ -125,6 +130,10 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Erstellt die View mit allen Absenzen darin.
+     * @return
+     */
     ArrayList<String> generateAbsencesView() {
         ArrayList<String> list = new ArrayList<>();
         for (Absence a : absences) {

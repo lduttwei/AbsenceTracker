@@ -36,6 +36,11 @@ public class AbsenceActivity extends AppCompatActivity {
     private static final int CAMERA_PERMISSION_CODE = 100;
     private static final int CAMERA_REQUEST_CODE = 1888;
 
+    /**
+     * Returns Text in a View or a default value.
+     * @param key
+     * @return
+     */
     String getTextField(int key) {
         EditText text = findViewById(key);
         try {
@@ -87,6 +92,10 @@ public class AbsenceActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Checks if its allowed to leave the Activity.
+     * If a input is not complete or the type not right backpressed is refused and an error message displayed.
+     */
     @Override
     public void onBackPressed() {
         String date = getTextField(R.id.date);
@@ -137,7 +146,11 @@ public class AbsenceActivity extends AppCompatActivity {
         }
     }
 
-    boolean checkFile(String path) {
+    /**
+     * Checks if the File on the photoPath exists.
+     * @return
+     */
+    boolean checkFile() {
         try {
             MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.parse(photoPath));
             return true;
@@ -148,6 +161,9 @@ public class AbsenceActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Creates and executes the email intent, if the contents of the Activity are correct.
+     */
     private void composeEmail() {
         String reason = ((EditText) findViewById(R.id.reason)).getText().toString();
         String date = ((EditText) findViewById(R.id.date)).getText().toString();
@@ -165,7 +181,7 @@ public class AbsenceActivity extends AppCompatActivity {
             error.setText("Please enter a reason.");
             return;
         }
-        if (!checkFile(photoPath)) {
+        if (!checkFile()) {
             error.setText("Create an image first.");
             return;
         }
