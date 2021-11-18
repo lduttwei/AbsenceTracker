@@ -1,16 +1,23 @@
 package zli.ld.absencetracker.Model;
 
+import android.graphics.Bitmap;
+
 public class Absence {
     private String reason;
     private String date;
     private String email;
-    private String imageLocation;
+    private Bitmap image;
 
-    public Absence(String reason, String date, String email, String imageLocation) {
+    public Absence(String reason, String date, String email, Bitmap image) {
         this.reason = reason;
         this.date = date;
         this.email = email;
-        this.imageLocation = imageLocation;
+        this.image = image;
+    }
+    public Absence(String reason, String date, String email) {
+        this.reason = reason;
+        this.date = date;
+        this.email = email;
     }
 
     public String getReason() {
@@ -37,11 +44,11 @@ public class Absence {
         this.email = email;
     }
 
-    public String getImageLocation() {
-        return imageLocation;
+    public Bitmap getImage() {
+        return image;
     }
 
-    public void setImageLocation(String imageLocation) {
-        this.imageLocation = imageLocation;
+    public void setImage(Bitmap imageLocation) {
+        this.image = imageLocation;
     }
 }

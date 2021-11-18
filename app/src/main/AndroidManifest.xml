@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="zli.ld.absencetracker">
 
+    <uses-feature android:name="android.hardware.camera.any" android:required="true"> </uses-feature>
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"> </uses-feature>
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"

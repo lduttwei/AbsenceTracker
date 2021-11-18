@@ -1,8 +1,13 @@
 package zli.ld.absencetracker;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -22,45 +27,60 @@ public class MainActivity extends AppCompatActivity {
     private final int CREATE_ACTIVITY = 0;
     private final int EDIT_ACTIVITY = 10;
     private final int DELETE_ACTIVITY = 1;
+    private ActivityResultLauncher<Intent> activityResultLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Absence absence = new Absence("sick", "21.12.2012", "linus.duttweiler@lernende.bbw.ch", "");
+        Absence absence = new Absence("sick", "21.12.2012", "linus.duttweiler@lernende.bbw.ch");
         absences.add(absence);
-        absence = new Absence("deez", "22.12.2012", "linus.duttweiler@lernende.bbw.ch", "");
+        absence = new Absence("deez", "22.12.2012", "linus.duttweiler@lernende.bbw.ch");
         absences.add(absence);
         updateAbsencesView();
 
         FloatingActionButton add = findViewById(R.id.add);
         add.setOnClickListener(v -> {
-            openAbsenceCreate();
+            absences.add(new Absence("", "", ""));
+            position = absences.size() - 1;
+            openAbsence(absences.get(position));
         });
+
+        activityResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        System.out.println("Result: " + result.getResultCode());
+                        if ( result.getResultCode() == AbsenceActivity.DELETE) {
+                            absences.remove(position);
+                        }
+                        if ( result.getResultCode() == AbsenceActivity.CREATE) {
+                            Intent resultData = result.getData();
+                            Bundle data = resultData.getExtras();
+                            Absence absence = absences.get(position);
+                            absence.setDate(data.getString("date"));
+                            absence.setEmail(data.getString("email"));
+                            absence.setReason(data.getString("reason"));
+                            absence.setImage(data.getParcelable("image"));
+                        }
+                        updateAbsencesView();
+                    }
+                });
     }
 
-    void openAbsenceCreate() {
+    void openAbsence(Absence absence) {
         Intent intent = new Intent(MainActivity.this, AbsenceActivity.class);
-        intent.putExtra("edit", false);
-        startActivityForResult(intent, CREATE_ACTIVITY);
-    }
-
-    void openAbsenceEdit(int pos) {
-        Intent intent = new Intent(MainActivity.this, AbsenceActivity.class);
-        Absence absence = absences.get(pos);
         String date = absence.getDate();
         String reason = absence.getReason();
-        String image = absence.getImageLocation();
+        Bitmap image = absence.getImage();
         String email = absence.getEmail();
-        intent.putExtra("edit", true);
         intent.putExtra("date", date);
         intent.putExtra("reason", reason);
         intent.putExtra("image", image);
         intent.putExtra("email", email);
-        intent.putExtra("position", pos);
-        position = pos;
-        startActivityForResult(intent, EDIT_ACTIVITY);
+        activityResultLauncher.launch(intent);
     }
 
     private void updateAbsencesView() {
@@ -69,47 +89,12 @@ public class MainActivity extends AppCompatActivity {
         view.setAdapter(arr);
         view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                System.out.println(absences.get(position).getDate());
-                openAbsenceEdit(position);
+            public void onItemClick(AdapterView<?> parent, View view, int pos, long id) {
+                System.out.println(absences.get(pos).getDate());
+                position = pos;
+                openAbsence(absences.get(position));
             }
         });
-    }
-
-    @Override
-    public void onActivityResult(int request, int result, Intent data) {
-        super.onActivityResult(request, result, data);
-        if (request == CREATE_ACTIVITY) {
-            handleCreate(result, data);
-        }
-        if (request == EDIT_ACTIVITY) {
-            handleEdit(result, data);
-        }
-        updateAbsencesView();
-    }
-
-    private void handleCreate(int result, Intent data) {
-        Bundle extras = data.getExtras();
-        String reason = getString(extras, "reason");
-        String date = getString(extras, "date");
-        String email = getString(extras, "email");
-        String image = getString(extras, "image");
-        absences.add(new Absence(reason, date, email, image));
-    }
-
-    String getString(Bundle extra, String key) {
-        try {
-            return extra.getString(key);
-        } catch (NullPointerException exception) {
-            return "";
-        }
-
-    }
-
-    private void handleEdit(int result, Intent data) {
-        if (result == DELETE_ACTIVITY) {
-            absences.remove(position);
-        }
     }
 
     ArrayList<String> generateAbsencesView() {
