@@ -5,12 +5,16 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.activity.result.contract.ActivityResultContract;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -129,6 +133,17 @@ public class AbsenceActivity extends AppCompatActivity {
         }
     }
 
+    boolean checkFile(String path){
+        try {
+            MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.parse(photoPath));
+            return true;
+        } catch (FileNotFoundException e) {
+            return false;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
     private void composeEmail() {
         String reason = ((EditText) findViewById(R.id.reason)).getText().toString();
         String date = ((EditText) findViewById(R.id.date)).getText().toString();
@@ -146,11 +161,17 @@ public class AbsenceActivity extends AppCompatActivity {
             error.setText("Please enter a reason");
             return;
         }
+        if ( !checkFile(photoPath)) {
+            error.setText("Create an image first.");
+            return;
+        }
 
-        Intent intent = new Intent(Intent.ACTION_SENDTO);
-        intent.setData(Uri.parse("mailto:"+email));
-        intent.putExtra(Intent.EXTRA_EMAIL, email);
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/html");
+        intent.putExtra(Intent.EXTRA_EMAIL, new String[] {email});
         intent.putExtra(Intent.EXTRA_SUBJECT, "Absenz vom " + date);
+        intent.putExtra(Intent.EXTRA_STREAM, Uri.parse(photoPath));
+        intent.putExtra(Intent.EXTRA_TEXT, "Hier ist die Absenz vom " + date  + " unterschrieben zurück.\n");
         startActivity(intent);
     }
 }
