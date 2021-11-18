@@ -96,15 +96,19 @@ public class AbsenceActivity extends AppCompatActivity {
         } else {
             if (!ParseUtilities.verifyDate(date)) {
                 text.setText("Please enter correct Date format (mm.dd.yyyy).");
-            } else {
-                Intent intent = new Intent();
-                intent.putExtra("email", getTextField(R.id.email));
-                intent.putExtra("reason", getTextField(R.id.reason));
-                intent.putExtra("date", date);
-                intent.putExtra("image", photoPath);
-                setResult(CREATE, intent);
-                super.onBackPressed();
+                return;
             }
+            if (!ParseUtilities.verifyEmail(getTextField(R.id.email)) ) {
+                text.setText("Please enter a valid email.");
+                return;
+            }
+            Intent intent = new Intent();
+            intent.putExtra("email", getTextField(R.id.email));
+            intent.putExtra("reason", getTextField(R.id.reason));
+            intent.putExtra("date", date);
+            intent.putExtra("image", photoPath);
+            setResult(CREATE, intent);
+            super.onBackPressed();
         }
     }
 
@@ -133,7 +137,7 @@ public class AbsenceActivity extends AppCompatActivity {
         }
     }
 
-    boolean checkFile(String path){
+    boolean checkFile(String path) {
         try {
             MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.parse(photoPath));
             return true;
@@ -149,29 +153,29 @@ public class AbsenceActivity extends AppCompatActivity {
         String date = ((EditText) findViewById(R.id.date)).getText().toString();
         String email = ((EditText) findViewById(R.id.email)).getText().toString();
         TextView error = findViewById(R.id.error);
-        if ( email.isEmpty() )  {
-            error.setText("Please enter a valid email");
+        if (email.isEmpty() || !ParseUtilities.verifyEmail(email)) {
+            error.setText("Please enter a valid email.");
             return;
         }
-        if ( !ParseUtilities.verifyDate(date) ) {
-            error.setText("Please enter a valid date");
+        if (!ParseUtilities.verifyDate(date)) {
+            error.setText("Please enter a valid date.");
             return;
         }
-        if ( reason.isEmpty() ) {
-            error.setText("Please enter a reason");
+        if (reason.isEmpty()) {
+            error.setText("Please enter a reason.");
             return;
         }
-        if ( !checkFile(photoPath)) {
+        if (!checkFile(photoPath)) {
             error.setText("Create an image first.");
             return;
         }
 
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/html");
-        intent.putExtra(Intent.EXTRA_EMAIL, new String[] {email});
+        intent.putExtra(Intent.EXTRA_EMAIL, new String[]{email});
         intent.putExtra(Intent.EXTRA_SUBJECT, "Absenz vom " + date);
         intent.putExtra(Intent.EXTRA_STREAM, Uri.parse(photoPath));
-        intent.putExtra(Intent.EXTRA_TEXT, "Hier ist die Absenz vom " + date  + " unterschrieben zurück.\n");
+        intent.putExtra(Intent.EXTRA_TEXT, "Hier ist die Absenz vom " + date + " unterschrieben zurück.\n");
         startActivity(intent);
     }
 }
