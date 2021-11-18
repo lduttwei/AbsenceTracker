@@ -6,18 +6,13 @@ public class Absence {
     private String reason;
     private String date;
     private String email;
-    private Bitmap image;
+    private String image;
 
-    public Absence(String reason, String date, String email, Bitmap image) {
+    public Absence(String reason, String date, String email, String image) {
         this.reason = reason;
         this.date = date;
         this.email = email;
         this.image = image;
-    }
-    public Absence(String reason, String date, String email) {
-        this.reason = reason;
-        this.date = date;
-        this.email = email;
     }
 
     public String getReason() {
@@ -44,11 +39,11 @@ public class Absence {
         this.email = email;
     }
 
-    public Bitmap getImage() {
+    public String getImagePath() {
         return image;
     }
 
-    public void setImage(Bitmap imageLocation) {
+    public void setImage(String imageLocation) {
         this.image = imageLocation;
     }
 }
