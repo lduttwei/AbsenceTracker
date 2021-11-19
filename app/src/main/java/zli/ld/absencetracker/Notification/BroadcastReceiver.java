@@ -16,16 +16,16 @@ public class BroadcastReceiver extends android.content.BroadcastReceiver {
     public BroadcastReceiver() {
     }
 
-    private Intent selectNotification(Intent intent, LocalDate today, LocalDate expired, LocalDate notify){
-        if ( today.isEqual(expired) || today.isAfter(expired)) {
+    private void selectNotification(Context context, Intent intent, LocalDate today, LocalDate expired, LocalDate notify){
+        if ( today.isAfter(expired)) {
             intent.putExtra("expired", true);
-            return intent;
+            context.startService(intent);
+            return;
         }
         if ( today.isEqual(notify) || today.isAfter(notify)) {
             intent.putExtra("expired", false);
-            return intent;
+            context.startService(intent);
         }
-        return intent;
     }
 
     @Override
@@ -34,15 +34,13 @@ public class BroadcastReceiver extends android.content.BroadcastReceiver {
         int ID = 0;
         for ( Absence absence : absences ) {
             if ( ParseUtilities.verifyDate(absence.getDate())) {
-                LocalDate expired = ParseUtilities.parseDate(absence.getDate());
-                LocalDate notify = ParseUtilities.parseDate(absence.getDate());
-                notify = notify.minusDays(5);
                 LocalDate today = Instant.ofEpochMilli(System.currentTimeMillis()).atZone(ZoneId.systemDefault()).toLocalDate();
+                LocalDate expired = ParseUtilities.parseDate(absence.getDate()).plusWeeks(4);
+                LocalDate notify = expired.minusDays(5);
                 Intent broad = new Intent(context, NotificationService.class);
                 broad.putExtra("date", absence.getDate());
                 broad.putExtra("id", ID++);
-                selectNotification(broad, today, expired, notify);
-                context.startService(broad);
+                selectNotification(context, broad, today, expired, notify);
             }
         }
     }

@@ -103,7 +103,7 @@ public class AbsenceActivity extends AppCompatActivity {
             text.setText("You need a Date to create the Absence.\nOtherwise delete It.");
         } else {
             if (!ParseUtilities.verifyDate(date)) {
-                text.setText("Please enter correct Date format (mm.dd.yyyy).");
+                text.setText("Please enter correct Date format (dd.mm.yyyy).");
                 return;
             }
             if (!ParseUtilities.verifyEmail(getTextField(R.id.email)) ) {
