@@ -37,7 +37,6 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
     }
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,13 +52,6 @@ public class MainActivity extends AppCompatActivity {
         AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 5 * 1000, pendingIntent);
 
-        //Intent alarmIntent = new Intent(this, AlarmReceiver.class);
-        //PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
-        //AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        //Calendar calendar = Calendar.getInstance();
-        //calendar.setTimeInMillis(System.currentTimeMillis() + 5 * 1000);
-        //manager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_FIFTEEN_MINUTES, pendingIntent);
-
         FloatingActionButton add = findViewById(R.id.add);
         add.setOnClickListener(v -> {
 
@@ -71,7 +63,6 @@ public class MainActivity extends AppCompatActivity {
         activityResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
-                    System.out.println("Result: " + result.getResultCode());
                     if (result.getResultCode() == AbsenceActivity.DELETE) {
                         absences.remove(position);
                     }
@@ -115,13 +106,14 @@ public class MainActivity extends AppCompatActivity {
      * Updated den Inhalt der View mit den Absenzen.
      */
     private void updateAbsencesView() {
+        Persistence.saveData(absences, getApplicationContext());
+        absences = Persistence.loadData(getApplicationContext());
         ListView view = findViewById(R.id.list);
         ArrayAdapter<String> arr = new ArrayAdapter<>(this, R.layout.support_simple_spinner_dropdown_item, generateAbsencesView());
         view.setAdapter(arr);
         view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int pos, long id) {
-                System.out.println(absences.get(pos).getDate());
                 position = pos;
                 openAbsence(position);
             }

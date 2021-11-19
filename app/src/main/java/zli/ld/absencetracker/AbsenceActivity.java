@@ -86,7 +86,6 @@ public class AbsenceActivity extends AppCompatActivity {
         if (requestCode == CAMERA_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             photo = (Bitmap) data.getExtras().get("data");
             photoPath = MediaStore.Images.Media.insertImage(getContentResolver(), photo, "Absence - " + position, "Picture for absence application");
-            System.out.println("PATH:" + photoPath);
             ImageView image = findViewById(R.id.image);
             image.setImageBitmap(photo);
         }

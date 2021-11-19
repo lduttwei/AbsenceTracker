@@ -14,9 +14,6 @@ import zli.ld.absencetracker.MainActivity;
 import zli.ld.absencetracker.R;
 
 public class NotificationService extends IntentService {
-    private final int notifyID = 1;
-    private final String CHANNEL_ID = "my_channel_01";// The id of the channel.
-    private final int importance = NotificationManager.IMPORTANCE_HIGH;
 
     public NotificationService() {
         super("NotificationService");
@@ -27,35 +24,19 @@ public class NotificationService extends IntentService {
         Bundle extra = intent.getExtras();
         boolean expired = extra.getBoolean("expired");
         String date = extra.getString("date");
+        int notifyID = extra.getInt("id");
         Notification notification;
         if ( expired ) {
-            notification = buildExpiredNotification(date);
+            notification = NotificationBuilder.buildExpiredNotification(date, NotificationService.this);
         } else {
-            notification = buildNotification(date);
+            notification = NotificationBuilder.buildNotification(date, NotificationService.this);
         }
         CharSequence name = getString(R.string.app_name);
-        NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, name, importance);
+        NotificationChannel mChannel = new NotificationChannel(NotificationBuilder.CHANNEL_ID, name, NotificationBuilder.importance);
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.createNotificationChannel(mChannel);
         mNotificationManager.notify(notifyID , notification);
     }
 
-    private Notification buildExpiredNotification(String date) {
-        return new Notification.Builder(NotificationService.this)
-                .setContentTitle("Expired Absences!")
-                .setContentText("Your absence for " + date + " is expired. Send it now.")
-                .setSmallIcon(R.drawable.img)
-                .setChannelId(CHANNEL_ID)
-                .build();
-    }
-
-    private Notification buildNotification(String date){
-        return new Notification.Builder(NotificationService.this)
-                .setContentTitle("Open Absences")
-                .setContentText("You still have an open Absence for: ")
-                .setSmallIcon(R.drawable.img)
-                .setChannelId(CHANNEL_ID)
-                .build();
-    }
 }
