@@ -13,6 +13,9 @@ import androidx.annotation.Nullable;
 import zli.ld.absencetracker.MainActivity;
 import zli.ld.absencetracker.R;
 
+/**
+ * This class uses the NotificationBuilder to make Notifications and sends them.
+ */
 public class NotificationService extends IntentService {
 
     public NotificationService() {
@@ -26,7 +29,7 @@ public class NotificationService extends IntentService {
         String date = extra.getString("date");
         int notifyID = extra.getInt("id");
         Notification notification;
-        if ( expired ) {
+        if (expired) {
             notification = NotificationBuilder.buildExpiredNotification(date, NotificationService.this);
         } else {
             notification = NotificationBuilder.buildNotification(date, NotificationService.this);
@@ -36,7 +39,7 @@ public class NotificationService extends IntentService {
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.createNotificationChannel(mChannel);
-        mNotificationManager.notify(notifyID , notification);
+        mNotificationManager.notify(notifyID, notification);
     }
 
 }

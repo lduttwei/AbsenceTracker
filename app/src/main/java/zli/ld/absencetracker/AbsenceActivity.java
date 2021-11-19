@@ -38,6 +38,7 @@ public class AbsenceActivity extends AppCompatActivity {
 
     /**
      * Returns Text in a View or a default value.
+     *
      * @param key
      * @return
      */
@@ -106,7 +107,7 @@ public class AbsenceActivity extends AppCompatActivity {
                 text.setText("Please enter correct Date format (dd.mm.yyyy).");
                 return;
             }
-            if (!ParseUtilities.verifyEmail(getTextField(R.id.email)) ) {
+            if (!ParseUtilities.verifyEmail(getTextField(R.id.email))) {
                 text.setText("Please enter a valid email.");
                 return;
             }
@@ -147,6 +148,7 @@ public class AbsenceActivity extends AppCompatActivity {
 
     /**
      * Checks if the File on the photoPath exists.
+     *
      * @return
      */
     boolean checkFile() {

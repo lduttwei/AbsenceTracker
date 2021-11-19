@@ -12,28 +12,40 @@ import zli.ld.absencetracker.Date.ParseUtilities;
 import zli.ld.absencetracker.Model.Absence;
 import zli.ld.absencetracker.Persitance.Persistence;
 
+/**
+ * The BroadcastReceiver gets the message from the alram.
+ * Its responsible for creating the notification-service intents.
+ */
+
 public class BroadcastReceiver extends android.content.BroadcastReceiver {
     public BroadcastReceiver() {
     }
 
-    private void selectNotification(Context context, Intent intent, LocalDate today, LocalDate expired, LocalDate notify){
-        if ( today.isAfter(expired)) {
+    private void selectNotification(Context context, Intent intent, LocalDate today, LocalDate expired, LocalDate notify) {
+        if (today.isAfter(expired)) {
             intent.putExtra("expired", true);
             context.startService(intent);
             return;
         }
-        if ( today.isEqual(notify) || today.isAfter(notify)) {
+        if (today.isEqual(notify) || today.isAfter(notify)) {
             intent.putExtra("expired", false);
             context.startService(intent);
         }
     }
 
+    /**
+     * For each Absence saved in SharedPreferences it checks if its necessary to make a notification.
+     * If yes, it creats an intent for the notification-service.
+     *
+     * @param context
+     * @param intent
+     */
     @Override
     public void onReceive(Context context, Intent intent) {
         ArrayList<Absence> absences = Persistence.loadData(context);
         int ID = 0;
-        for ( Absence absence : absences ) {
-            if ( ParseUtilities.verifyDate(absence.getDate())) {
+        for (Absence absence : absences) {
+            if (ParseUtilities.verifyDate(absence.getDate())) {
                 LocalDate today = Instant.ofEpochMilli(System.currentTimeMillis()).atZone(ZoneId.systemDefault()).toLocalDate();
                 LocalDate expired = ParseUtilities.parseDate(absence.getDate()).plusWeeks(4);
                 LocalDate notify = expired.minusDays(5);

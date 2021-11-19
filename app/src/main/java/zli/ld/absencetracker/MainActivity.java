@@ -29,7 +29,6 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<Absence> absences = new ArrayList<>();
     private int position;
     private ActivityResultLauncher<Intent> activityResultLauncher;
-    private SharedPreferences memory;
 
     @Override
     protected void onStop() {
@@ -42,15 +41,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        memory = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        //memory = getPreferences(MODE_PRIVATE);
         absences = Persistence.loadData(getApplicationContext());
         updateAbsencesView();
 
+        // Here the AlarmManager is set up which will remind the BroadcastReceiver to create Intents for NotificationServices.
         Intent notifyIntent = new Intent(this, BroadcastReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 10, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 5 * 1000, pendingIntent);
+        manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 5 * 1000 /* Number is so low to see the notifications fast in action*/, pendingIntent);
 
         FloatingActionButton add = findViewById(R.id.add);
         add.setOnClickListener(v -> {

@@ -11,6 +11,10 @@ import java.util.List;
 
 import zli.ld.absencetracker.Model.Absence;
 
+/**
+ * Persistence is responsible for all data.
+ * Other classes read and write to the filesystem trough this class.
+ */
 public class Persistence {
 
     private static final Gson gson = new Gson();

@@ -2,6 +2,11 @@ package zli.ld.absencetracker.Model;
 
 import android.graphics.Bitmap;
 
+/**
+ * This Class represents an Absence.
+ * It has reason, date email and a path for an image.
+ */
+
 public class Absence {
     private String reason;
     private String date;

@@ -13,6 +13,12 @@ import java.util.Formatter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
+/**
+ * This class is used by multiple others.
+ * It has functions to parse and verify Strings.
+ */
+
 public class ParseUtilities {
 
     public static boolean verifyEmail(String email) {
