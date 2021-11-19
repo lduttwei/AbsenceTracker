@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="zli.ld.absencetracker">
 
+    <uses-permission android:name="android.permission.WAKE_LOCK"> </uses-permission>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"> </uses-permission>
     <uses-feature android:name="android.hardware.camera.any" android:required="true"> </uses-feature>
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"> </uses-feature>
@@ -22,6 +23,16 @@
             </intent-filter>
         </activity>
         <activity android:name=".AbsenceActivity" android:exported="true"> </activity>
+        <receiver
+            android:name=".Notification.BroadcastReceiver"
+            android:exported="false"
+            android:enabled="true" >
+        </receiver>
+        <service
+            android:name=".Notification.NotificationService"
+            android:exported="false" >
+        </service>
+
     </application>
 
 </manifest>

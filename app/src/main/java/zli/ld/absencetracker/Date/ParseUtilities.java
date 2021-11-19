@@ -5,6 +5,7 @@ import android.service.autofill.RegexValidator;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
@@ -21,9 +22,9 @@ public class ParseUtilities {
         return matcher.matches();
     }
 
-    public static LocalDateTime parseDate(String date) {
+    public static LocalDate parseDate(String date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-        return LocalDateTime.parse(date, formatter);
+        return LocalDate.parse(date, formatter);
     }
 
     public static boolean verifyDate(String date) {

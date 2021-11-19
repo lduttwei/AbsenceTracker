@@ -4,24 +4,28 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
 import zli.ld.absencetracker.Model.Absence;
+import zli.ld.absencetracker.Notification.BroadcastReceiver;
+import zli.ld.absencetracker.Persitance.Persistence;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final Gson gson = new Gson();
     private ArrayList<Absence> absences = new ArrayList<>();
     private int position;
     private ActivityResultLauncher<Intent> activityResultLauncher;
@@ -29,45 +33,36 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onStop() {
-        saveData();
+        Persistence.saveData(absences, getApplicationContext());
         super.onStop();
     }
 
-    /**
-     * Saves the Absence Objects to the locale storage by JSON.
-     */
-    private void saveData() {
-        SharedPreferences.Editor prefsEditor = memory.edit();
-        prefsEditor.putInt("absences", absences.size());
-        for (int i = 0; i < absences.size(); i++) {
-            String json = gson.toJson(absences.get(i));
-            prefsEditor.putString(String.valueOf(i), json);
-        }
-        prefsEditor.commit();
-    }
-
-    /**
-     * Loads the objects from the local storage. Deserializes them from JSON.
-     */
-    private void loadData() {
-        int size = memory.getInt("absences", 0);
-        for (int i = 0; i < size; i++) {
-            String json = memory.getString(String.valueOf(i), "");
-            absences.add(gson.fromJson(json, Absence.class));
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        memory = getPreferences(MODE_PRIVATE);
-        loadData();
+        memory = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        //memory = getPreferences(MODE_PRIVATE);
+        absences = Persistence.loadData(getApplicationContext());
         updateAbsencesView();
+
+        Intent notifyIntent = new Intent(this, BroadcastReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 10, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 5 * 1000, pendingIntent);
+
+        //Intent alarmIntent = new Intent(this, AlarmReceiver.class);
+        //PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
+        //AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        //Calendar calendar = Calendar.getInstance();
+        //calendar.setTimeInMillis(System.currentTimeMillis() + 5 * 1000);
+        //manager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_FIFTEEN_MINUTES, pendingIntent);
 
         FloatingActionButton add = findViewById(R.id.add);
         add.setOnClickListener(v -> {
+
             absences.add(new Absence("", "", "", ""));
             position = absences.size() - 1;
             openAbsence(position);
@@ -92,10 +87,13 @@ public class MainActivity extends AppCompatActivity {
                     }
                     updateAbsencesView();
                 });
+
+
     }
 
     /**
      * Opens a AbsenceActivity by Intent with all the important extras.
+     *
      * @param position
      */
     void openAbsence(int position) {
@@ -132,6 +130,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Erstellt die View mit allen Absenzen darin.
+     *
      * @return
      */
     ArrayList<String> generateAbsencesView() {
